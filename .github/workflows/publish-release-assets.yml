@@ -1,0 +1,26 @@
+name: Publish release assets
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  upload-installers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the released revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Upload desktop installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          gh release upload "$RELEASE_TAG" release-assets/* \
+            --repo "${{ github.repository }}" \
+            --clobber
